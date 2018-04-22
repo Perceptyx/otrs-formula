@@ -1,0 +1,21 @@
+otrs:
+
+  version: 6.0.6
+
+  db_type: 'pgsql'
+  db_type_name: 'pgsql'
+  db_server: 'some_host.com'
+  db_username: 'admin'
+  db_password: 'password'
+  db_name: 'otrs'
+
+  db_datadir: '/data/mysql'
+  use_https: true
+
+
+  prefix: '/opt'
+  home: '/opt/otrs-home'
+  hostname: 'otrs.hostname.com'
+
+
+

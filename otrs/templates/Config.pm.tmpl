@@ -1,0 +1,17 @@
+package Kernel::Config;
+use strict;
+use warnings;
+use utf8;
+sub Load {
+    my $Self = shift;
+    $Self->{'DatabaseHost'} = '{{ otrs.db_server}}';
+    $Self->{'Database'} = "{{ otrs.db_name }}";
+    $Self->{'DatabaseUser'} = "{{ otrs.db_username }}";
+    $Self->{'DatabasePw'} = '{{ otrs.db_password }}';
+    $Self->{'DatabaseDSN'} = "DBI:Pg:dbname=$Self->{Database};host=$Self->{DatabaseHost}";
+    $Self->{Home} = '{{ otrs.prefix }}/otrs';
+    return 1;
+}
+use Kernel::Config::Defaults; # import Translatable()
+use parent qw(Kernel::Config::Defaults);
+1;
