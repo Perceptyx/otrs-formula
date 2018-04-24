@@ -49,15 +49,7 @@ perl /opt/otrs/bin/otrs.CheckModules.pl | grep apt-get  | cut -d "'" -f 2 > /tmp
   cmd.run
 
 
-
-
-
-
-
-
 #Test later all things
-
-
 perl -cw /opt/otrs/bin/cgi-bin/index.pl:
   cmd.run
 
@@ -66,4 +58,71 @@ perl -cw /opt/otrs/bin/cgi-bin/customer.pl:
 
 perl -cw /opt/otrs/bin/otrs.Console.pl:
   cmd.run
+
+
+apache2:
+  pkg.installed
+
+libapache2-mod-perl2:
+  pkg.installed
+
+a2enmod perl:
+  cmd.run
+
+a2enmod deflate:
+  cmd.run
+
+a2enmod filter:
+  cmd.run
+
+a2enmod headers:
+  cmd.run
+
+otrs-apache-configuration-symlink:
+  file.symlink:
+    - name: /etc/apache2/sites-enabled/zzz_otrs.conf
+    - target: {{ otrs.prefix }}/otrs/scripts/apache2-httpd.include.conf
+    - user: www-data
+
+
+
+cd /opt/otrs/ && bin/otrs.SetPermissions.pl:
+  cmd.run
+
+mv {{ otrs.prefix }}/otrs/var/cron/aaa_base.dist {{ otrs.prefix }}/otrs/var/cron/aaa_base:
+  cmd.run:
+    - creates: {{ otrs.prefix }}/otrs/var/cron/aaa_base
+
+
+mv {{ otrs.prefix }}/otrs/var/cron/otrs_daemon.dist {{ otrs.prefix }}/otrs/var/cron/otrs_daemon:
+  cmd.run:
+    - creates: {{ otrs.prefix }}/otrs/var/cron/otrs_daemon
+
+
+
+otrs-init-script:
+  file.managed:
+    - name: /etc/systemd/system/otrs.service
+    - source: salt://otrs/templates/otrs.service.tmpl
+    - user: root
+    - group: root
+    - mode: 0755
+    - template: jinja
+    - context:
+        otrs: {{ otrs }}
+
+systemctl daemon-reload:
+  cmd.run
+
+otrs-service:
+  service.running:
+    - name: otrs
+    - enable: True
+    - require:
+      - archive: unpack-otrs-tarball
+      - file: otrs-init-script
+    - watch:
+      - /etc/systemd/system/otrs.service
+      - {{ otrs.prefix }}/otrs/Kernel/Config.pm
+
 

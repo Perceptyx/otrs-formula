@@ -1,0 +1,16 @@
+[Unit]
+Description=OTRS Scheduler
+
+[Service]
+Type=forking
+WorkingDirectory={{ otrs.prefix }}/otrs
+User=otrs
+ExecStart=/usr/bin/perl {{ otrs.prefix }}/otrs/bin/otrs.Daemon.pl start 
+ExecReload=/usr/bin/perl {{ otrs.prefix }}/otrs/bin/otrs.Daemon.pl stop ; /usr/bin/perl {{ otrs.prefix }}/otrs/bin/otrs.Daemon.pl start
+ExecStop=/usr/bin/perl {{ otrs.prefix }}/otrs/bin/otrs.Daemon.pl stop
+PrivateTmp=true
+
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
