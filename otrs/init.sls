@@ -22,6 +22,7 @@ unpack-otrs-tarball:
     - user: {{ otrs.user }}
     - options: z
     - keep: True
+    - overwrite: True
     - unless: 
       - ls {{ otrs.prefix }}/otrs-{{ otrs.version }}
 
