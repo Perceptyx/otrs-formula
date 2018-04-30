@@ -60,32 +60,20 @@ perl -cw /opt/otrs/bin/cgi-bin/customer.pl:
 perl -cw /opt/otrs/bin/otrs.Console.pl:
   cmd.run
 
-
-apache2:
-  pkg.installed
-
-libapache2-mod-perl2:
-  pkg.installed
-
-a2enmod perl:
-  cmd.run
-
-a2enmod deflate:
-  cmd.run
-
-a2enmod filter:
-  cmd.run
-
-a2enmod headers:
-  cmd.run
-
 otrs-apache-configuration-symlink:
   file.symlink:
     - name: /etc/apache2/sites-enabled/zzz_otrs.conf
     - target: {{ otrs.prefix }}/otrs/scripts/apache2-httpd.include.conf
     - user: www-data
+    - require:
+      - pkg: apache2
+    - watch_in:
+      - service: apache_service
 
-
+apache_service:
+  service.running:
+    - name: apache2
+    - enable: True
 
 cd /opt/otrs/ && bin/otrs.SetPermissions.pl:
   cmd.run
