@@ -49,6 +49,8 @@ create-otrs-symlink:
 perl /opt/otrs/bin/otrs.CheckModules.pl | grep apt-get  | cut -d "'" -f 2 > /tmp/install.sh && sh /tmp/install.sh:
   cmd.run
 
+su -c "/opt/otrs/bin/otrs.Console.pl Admin::Package::ReinstallAll" -s /bin/bash otrs; exit 0:
+  cmd.run
 
 #Test later all things
 perl -cw /opt/otrs/bin/cgi-bin/index.pl:
@@ -59,6 +61,8 @@ perl -cw /opt/otrs/bin/cgi-bin/customer.pl:
 
 perl -cw /opt/otrs/bin/otrs.Console.pl:
   cmd.run
+
+
 
 otrs-apache-configuration-symlink:
   file.symlink:
