@@ -42,7 +42,7 @@ create-otrs-symlink:
     - group: {{ otrs.user }}
     - template: jinja
     - context:
-        otrs: {{ otrs }}
+        otrs: {{ otrs|tojson }}
 
 
 #installing all outstanding modules
@@ -102,7 +102,7 @@ otrs-init-script:
     - mode: 0755
     - template: jinja
     - context:
-        otrs: {{ otrs }}
+        otrs: {{ otrs|tojson }}
 
 systemctl daemon-reload:
   cmd.run
