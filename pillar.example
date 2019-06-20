@@ -1,6 +1,6 @@
 otrs:
 
-  version: 6.0.6
+  version: 7.0.8
 
   db_type: 'pgsql'
   db_type_name: 'pgsql'

@@ -1,5 +1,20 @@
 {%- from 'otrs/conf/otrs_settings.sls' import otrs with context %}
 
+include:
+  - sun-java
+  - sun-java.env
+
+#installing elastic search
+'wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - && echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list && apt-get update && apt-get install -y elasticsearch':
+  cmd.run
+
+#installing nodejs
+"curl -sL https://deb.nodesource.com/setup_8.x | bash && apt-get install -y nodejs":
+  cmd.run
+
+
+
+
 otrs-user:
   group:
     - name: {{ otrs.user }}
@@ -23,7 +38,7 @@ unpack-otrs-tarball:
     - options: z
     - keep: True
     - overwrite: True
-    - unless: 
+    - unless:
       - ls {{ otrs.prefix }}/otrs-{{ otrs.version }}
 
 create-otrs-symlink:
@@ -46,23 +61,28 @@ create-otrs-symlink:
 
 
 #installing all outstanding modules
-perl /opt/otrs/bin/otrs.CheckModules.pl | grep apt-get  | cut -d "'" -f 2 > /tmp/install.sh && sh /tmp/install.sh:
+perl /opt/otrs/bin/otrs.CheckEnvironment.pl | grep apt-get  | cut -d "'" -f 2 > /tmp/install.sh && sh /tmp/install.sh:
   cmd.run
+
+"echo export PERL_MM_USE_DEFAULT=1 > /tmp/install_cpan.sh && perl /opt/otrs/bin/otrs.CheckEnvironment.pl  | grep -e \"Use: 'cpan\" | grep -v 'optional' | cut -d \"'\" -f 2 >> /tmp/install_cpan.sh && sh /tmp/install_cpan.sh":
+  cmd.run
+
+
+
+#chmod a+rx /usr/share/perl5/Module/ && chmod a+rx /usr/share/perl5/ && chmod a+rx /usr/local/share/perl/5.22.1/Module:
+#  cmd.run
+# Not needed in ubuntu 18
 
 su -c "/opt/otrs/bin/otrs.Console.pl Admin::Package::ReinstallAll" -s /bin/bash otrs; exit 0:
   cmd.run
 
 #Test later all things
-perl -cw /opt/otrs/bin/cgi-bin/index.pl:
-  cmd.run
-
-perl -cw /opt/otrs/bin/cgi-bin/customer.pl:
-  cmd.run
 
 perl -cw /opt/otrs/bin/otrs.Console.pl:
   cmd.run
 
-
+a2enmod proxy_http:
+  cmd.run
 
 otrs-apache-configuration-symlink:
   file.symlink:
@@ -81,6 +101,10 @@ apache_service:
 
 cd /opt/otrs/ && bin/otrs.SetPermissions.pl:
   cmd.run
+
+
+
+
 
 mv {{ otrs.prefix }}/otrs/var/cron/aaa_base.dist {{ otrs.prefix }}/otrs/var/cron/aaa_base:
   cmd.run:
@@ -117,5 +141,3 @@ otrs-service:
     - watch:
       - /etc/systemd/system/otrs.service
       - {{ otrs.prefix }}/otrs/Kernel/Config.pm
-
-

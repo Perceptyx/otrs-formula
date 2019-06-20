@@ -3,7 +3,7 @@
 
 
 
-{%- set default_version      = '6.0.6' %}
+{%- set default_version      = '7.0.8' %}
 {%- set default_prefix       = '/opt' %}
 
 {%- set default_source_url   = 'http://ftp.otrs.org/pub/otrs/' %}
